@@ -1,48 +1,33 @@
-﻿@model SportDiary.ViewModels.TrainingEntries.TrainingEntryFormViewModel
-
+﻿
 @{
-    ViewData["Title"] = "Edit Training Entry";
 }
 
 <h1>Edit</h1>
 
-<form asp-action="Edit" method="post">
-    <div class="mb-3">
-        <label asp-for="TrainingDiaryId" class="form-label">Diary</label>
-        <select asp-for="TrainingDiaryId" class="form-select" asp-items="ViewBag.TrainingDiaries">
-            <option value="">-- select diary --</option>
-        </select>
-        <span asp-validation-for="TrainingDiaryId" class="text-danger"></span>
+                <input asp-for="SportName" class="form-control" />
+                <span asp-validation-for="SportName" class="text-danger"></span>
+            </div>
+                <input asp-for="DurationMinutes" class="form-control" />
+                <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+            </div>
+                <input asp-for="Calories" class="form-control" />
+                <span asp-validation-for="Calories" class="text-danger"></span>
+            </div>
+                <input asp-for="DistanceKm" class="form-control" />
+                <span asp-validation-for="DistanceKm" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TrainingDiaryId" class="control-label"></label>
+                <select asp-for="TrainingDiaryId" class="form-control" asp-items="ViewBag.TrainingDiaryId"></select>
+                <span asp-validation-for="TrainingDiaryId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
     </div>
+</div>
 
-    <div class="mb-3">
-        <label asp-for="SportName" class="form-label"></label>
-        <input asp-for="SportName" class="form-control" />
-        <span asp-validation-for="SportName" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="DurationMinutes" class="form-label"></label>
-        <input asp-for="DurationMinutes" class="form-control" />
-        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Calories" class="form-label"></label>
-        <input asp-for="Calories" class="form-control" />
-        <span asp-validation-for="Calories" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="DistanceKm" class="form-label"></label>
-        <input asp-for="DistanceKm" class="form-control" />
-        <span asp-validation-for="DistanceKm" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Back</a>
-</form>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
 }

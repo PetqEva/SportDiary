@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SportDiary.Data;
 
@@ -11,9 +12,11 @@ using SportDiary.Data;
 namespace SportDiary.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260127104032_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,6 +25,7 @@ namespace SportDiary.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("SportDiary.Models.TrainingDiary", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -47,6 +51,7 @@ namespace SportDiary.Migrations
                     b.ToTable("TrainingDiaries");
                 });
 
+            modelBuilder.Entity("SportDiary.Models.TrainingEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -78,6 +83,7 @@ namespace SportDiary.Migrations
                     b.ToTable("TrainingEntries");
                 });
 
+            modelBuilder.Entity("SportDiary.Models.UserProfile", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -98,7 +104,9 @@ namespace SportDiary.Migrations
                     b.ToTable("UserProfiles");
                 });
 
+            modelBuilder.Entity("SportDiary.Models.TrainingDiary", b =>
                 {
+                    b.HasOne("SportDiary.Models.UserProfile", "UserProfile")
                         .WithMany("TrainingDiaries")
                         .HasForeignKey("UserProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -107,7 +115,9 @@ namespace SportDiary.Migrations
                     b.Navigation("UserProfile");
                 });
 
+            modelBuilder.Entity("SportDiary.Models.TrainingEntry", b =>
                 {
+                    b.HasOne("SportDiary.Models.TrainingDiary", "TrainingDiary")
                         .WithMany("TrainingEntries")
                         .HasForeignKey("TrainingDiaryId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -116,10 +126,12 @@ namespace SportDiary.Migrations
                     b.Navigation("TrainingDiary");
                 });
 
+            modelBuilder.Entity("SportDiary.Models.TrainingDiary", b =>
                 {
                     b.Navigation("TrainingEntries");
                 });
 
+            modelBuilder.Entity("SportDiary.Models.UserProfile", b =>
                 {
                     b.Navigation("TrainingDiaries");
                 });

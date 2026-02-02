@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SportDiary.Data;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -9,14 +8,8 @@ string? connectionString = builder.Configuration.GetConnectionString("DefaultCon
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<AppDbContext>(options => 
-{  
-    options
-        .UseSqlServer(connectionString); 
-});
-    
+builder.Services.AddDbContext<AppDbContext>(options =>
 
-WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

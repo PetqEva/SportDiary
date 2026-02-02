@@ -1,36 +1,22 @@
-﻿@using SportDiary.ViewModels.UserProfiles
-@model IEnumerable<UserProfileAllViewModel>
-
+﻿
 @{
-    ViewData["Title"] = "User Profiles";
 }
 
-<h1>User Profiles</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
 </p>
 
 <table class="table">
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Age</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var u in Model)
-        {
-            <tr>
-                <td>@u.Name</td>
-                <td>@u.Age</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@u.Id">Details</a> |
-                    <a asp-action="Edit" asp-route-id="@u.Id">Edit</a> |
-                    <a asp-action="Delete" asp-route-id="@u.Id">Delete</a>
-                </td>
-            </tr>
-        }
+        <tr>
+            <td>
+            </td>
+        </tr>
+}
     </tbody>
 </table>

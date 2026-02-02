@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using SportDiary.ViewModels;
 namespace SportDiary.Controllers
 {
     public class HomeController : Controller
