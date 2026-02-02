@@ -1,0 +1,36 @@
+﻿@model SportDiary.ViewModels.TrainingDiaries.TrainingDiaryFormViewModel
+
+@{
+    ViewData["Title"] = "Edit Training Diary";
+}
+
+<h1>Edit</h1>
+
+<form asp-action="Edit" method="post">
+    <div class="mb-3">
+        <label asp-for="Date" class="form-label"></label>
+        <input asp-for="Date" class="form-control" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="UserProfileId" class="form-label">User</label>
+        <select asp-for="UserProfileId" class="form-select" asp-items="ViewBag.UserProfiles">
+            <option value="">-- select user --</option>
+        </select>
+        <span asp-validation-for="UserProfileId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Notes" class="form-label"></label>
+        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
