@@ -1,0 +1,29 @@
+@model UserProfile
+
+@{
+    ViewData["Title"] = "Редакция на профил";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="Edit" method="post">
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Име</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Age" class="form-label">Години</label>
+        <input asp-for="Age" class="form-control" type="number" min="0" />
+        <span asp-validation-for="Age" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Запази</button>
+    <a class="btn btn-secondary" asp-action="Me">Назад</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
