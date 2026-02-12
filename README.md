@@ -1,54 +1,103 @@
-﻿# SportDiary
+# SportDiary
 
-SportDiary е ASP.NET Core MVC уеб приложение за проследяване на спортни активности и тренировъчни дневници. Проектът демонстрира основни принципи на ASP.NET Core, MVC архитектура и работа с Entity Framework Core и SQL Server.
+SportDiary is an ASP.NET Core MVC web application for tracking personal training sessions and managing fitness activity history.
 
-## 🎯 Цел на проекта
-Проектът е разработен като част от **ASP.NET Fundamentals** и има за цел да покаже:
-- правилна MVC структура
-- работа с бази данни чрез Entity Framework Core
-- пълна CRUD функционалност
-- валидации и добри практики в ASP.NET Core
+The project demonstrates layered architecture, ASP.NET Core Identity authentication, CRUD operations, validation, and clean MVC structure.
 
-## 🛠 Използвани технологии
-- ASP.NET Core MVC (.NET 6)
+---
+
+## 🚀 Features
+
+- User registration and login (ASP.NET Core Identity)
+- Personal user profiles
+- Training diary management
+- Training entries (Create, Edit, Delete, Details)
+- "Only my data" security filtering
+- Server-side and client-side validation
+- Responsive UI with Bootstrap
+- Clean layered architecture (Data / Services / Web)
+
+---
+
+## 🏗 Architecture
+
+The solution follows a layered structure:
+
+- **SportDiary (Web)** – Controllers, Views, UI
+- **SportDiary.Data** – DbContext and Entity models
+- **SportDiary.Services** – Business logic (Service layer)
+- **SportDiary.ViewModels** – ViewModels used in forms and views
+- **SportDiary.Common** – Validation constants and shared utilities
+
+Controllers do not access the database directly.  
+All business logic is handled through services using Dependency Injection.
+
+---
+
+## 🛠 Technologies Used
+
+- ASP.NET Core (.NET 8)
+- MVC Architecture
 - Entity Framework Core
 - SQL Server
+- ASP.NET Core Identity
 - Razor Views
 - Bootstrap 5
-- HTML / CSS
-- C#
+- Git & GitHub
 
-## 📦 Основни функционалности
-- Управление на потребителски профили
-- Създаване и управление на тренировъчни дневници
-- Добавяне, редактиране и изтриване на тренировъчни записи
-- Пълни CRUD операции за основните ентитети
-- Server-side и Client-side валидации
-- Навигация до всички страници чрез меню
+---
 
-## 🧱 Архитектура
-Проектът следва MVC архитектура:
-- **Models** – съдържат бизнес логиката и валидациите
-- **Controllers** – обработват заявките и управляват логиката
-- **Views** – Razor изгледи за визуализация
-- **Data** – DbContext и връзка с базата данни
+## 🔐 Authentication & Authorization
 
-## 🗄 База данни
-- SQL Server
-- Entity Framework Core Code-First
-- Миграции за създаване и актуализиране на базата
+The application uses ASP.NET Core Identity.
 
-## ▶️ Стартиране на проекта локално
+- Users must register and log in
+- Each user can access only their own training data
+- Protected pages require authentication
 
-### 1. Изисквания
-- .NET 6 SDK или по-нова версия
-- SQL Server (LocalDB или пълна версия)
-- Visual Studio 2022 / VS Code
+---
 
-### 2. Стъпки за стартиране
-1. Клонирай репозиторито:
-   ```bash
-   git clone https://github.com/USERNAME/SportDiary.git
+## 🗄 Database Setup
 
-   ## Status
-Initial project version
+1. Update the connection string in:
+
+
+2. Open Package Manager Console and run:
+
+
+3. Run the application.
+
+---
+
+## ▶ How to Run the Project
+
+1. Clone the repository
+2. Open `SportDiary.sln`
+3. Restore NuGet packages
+4. Apply migrations
+5. Run the project
+
+The application will start using the default configuration.
+
+---
+
+## 📌 Project Purpose
+
+This project was developed as part of the ASP.NET Fundamentals course assignment.
+
+It demonstrates understanding of:
+
+- MVC pattern
+- Identity integration
+- Dependency Injection
+- Layered architecture
+- CRUD operations
+- Data validation
+- Secure user-based data access
+
+---
+
+## 👩‍💻 Author
+
+PetqEva
+
