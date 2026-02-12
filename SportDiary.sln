@@ -18,10 +18,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SportDiary.Data", "..\SportDiary.Data\SportDiary.Data.csproj", "{55237413-B161-480F-AF24-5F9D6D8C11C7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{F86E9521-226A-4C7B-811D-155A8AF5B042}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SportDiary.Services.Core", "..\SportDiary.Services.Core\SportDiary.Services.Core.csproj", "{27679675-FAB2-41DC-813E-1D0D0A350848}"
+	ProjectSection(SolutionItems) = preProject
+		..\SportDiary.Data.Models\IHomeDashboardService.cs = ..\SportDiary.Data.Models\IHomeDashboardService.cs
+		..\SportDiary.Data.Models\ITrainingDiaryService.cs = ..\SportDiary.Data.Models\ITrainingDiaryService.cs
+		..\SportDiary.Data.Models\ITrainingEntryService.cs = ..\SportDiary.Data.Models\ITrainingEntryService.cs
+		..\SportDiary.Data.Models\IUserProfileService.cs = ..\SportDiary.Data.Models\IUserProfileService.cs
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SportDiary.Services", "..\SportDiary.Services\SportDiary.Services.csproj", "{40952DCF-FB7E-4A4F-BF7C-A73E5DCF4136}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Interfaces", "Interfaces", "{3353BBF4-6DE3-46F0-AC71-BDF94FDA116B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,10 +55,6 @@ Global
 		{55237413-B161-480F-AF24-5F9D6D8C11C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55237413-B161-480F-AF24-5F9D6D8C11C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55237413-B161-480F-AF24-5F9D6D8C11C7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{27679675-FAB2-41DC-813E-1D0D0A350848}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{27679675-FAB2-41DC-813E-1D0D0A350848}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{27679675-FAB2-41DC-813E-1D0D0A350848}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{27679675-FAB2-41DC-813E-1D0D0A350848}.Release|Any CPU.Build.0 = Release|Any CPU
 		{40952DCF-FB7E-4A4F-BF7C-A73E5DCF4136}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{40952DCF-FB7E-4A4F-BF7C-A73E5DCF4136}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40952DCF-FB7E-4A4F-BF7C-A73E5DCF4136}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -66,7 +68,7 @@ Global
 		{A37036A9-E7C3-4307-A12F-8C48D570D7EE} = {8EA98267-E25E-44BA-8ADB-32A4B7A44850}
 		{9FDD3027-32B8-4709-9139-F9FDEB937390} = {39994B44-8121-4220-B760-166507BE3354}
 		{55237413-B161-480F-AF24-5F9D6D8C11C7} = {39994B44-8121-4220-B760-166507BE3354}
-		{27679675-FAB2-41DC-813E-1D0D0A350848} = {F86E9521-226A-4C7B-811D-155A8AF5B042}
+		{3353BBF4-6DE3-46F0-AC71-BDF94FDA116B} = {F86E9521-226A-4C7B-811D-155A8AF5B042}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {27197F38-68B5-4F47-BA27-BE3ED5985B1F}

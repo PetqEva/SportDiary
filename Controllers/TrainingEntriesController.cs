@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SportDiary.Data.Models;
-using SportDiary.Services.Core.Interfaces;
+using SportDiary.Services.Interfaces;
 using SportDiary.ViewModels.TrainingEntries;
 
 namespace SportDiary.Controllers

@@ -23,7 +23,6 @@
     <ProjectReference Include="..\SportDiary.Data.Models\SportDiary.Data.Models.csproj" />
     <ProjectReference Include="..\SportDiary.Data\SportDiary.Data.csproj" />
     <ProjectReference Include="..\SportDiary.GCommon\SportDiary.GCommon.csproj" />
-    <ProjectReference Include="..\SportDiary.Services.Core\SportDiary.Services.Core.csproj" />
     <ProjectReference Include="..\SportDiary.Services\SportDiary.Services.csproj" />
     <ProjectReference Include="..\SportDiary.ViewModels\SportDiary.ViewModels.csproj" />
   </ItemGroup>
