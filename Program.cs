@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SportDiary.Data;
 using SportDiary.Data.Models;
 using SportDiary.Infrastructure;
+using SportDiary.Services.Core.Interfaces;
+using SportDiary.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,11 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account/ResendEmailConfirmation");
     options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account/ConfirmEmail");
 });
+
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<ITrainingDiaryService, TrainingDiaryService>();
+builder.Services.AddScoped<ITrainingEntryService, TrainingEntryService>();
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));

@@ -1,4 +1,5 @@
-@model TrainingEntry
+@using SportDiary.ViewModels.TrainingEntries
+@model TrainingEntryFormVm
 
 @{
     ViewData["Title"] = "Нов запис";
@@ -9,8 +10,10 @@
 <form asp-action="Create" method="post">
     <div class="mb-3">
         <label asp-for="TrainingDiaryId" class="form-label">Дневник</label>
-        <select asp-for="TrainingDiaryId" class="form-select" asp-items="ViewBag.TrainingDiaryId"></select>
-        <span asp-validation-for="TrainingDiaryId" class="text-danger"></span>
+        <select asp-for="TrainingDiaryId" class="form-select" asp-items="Model.Diaries">
+            <option value="">-- избери дневник --</option>
+        </select>
+
     </div>
 
     <div class="mb-3">

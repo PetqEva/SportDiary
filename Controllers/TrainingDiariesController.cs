@@ -1,58 +1,64 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SportDiary.Data;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using SportDiary.Data.Models;
+using SportDiary.Services.Core.Interfaces;
+using SportDiary.ViewModels.TrainingDiaries;
 
 namespace SportDiary.Controllers
 {
     [Authorize]
     public class TrainingDiariesController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly ITrainingDiaryService _diaryService;
+        private readonly IUserProfileService _profileService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public TrainingDiariesController(AppDbContext context, UserManager<ApplicationUser> userManager)
+        public TrainingDiariesController(
+            ITrainingDiaryService diaryService,
+            IUserProfileService profileService,
+            UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _diaryService = diaryService;
+            _profileService = profileService;
             _userManager = userManager;
         }
 
-        private async Task<UserProfile> GetMyProfileAsync()
-        {
-            var userId = _userManager.GetUserId(User);
-            if (string.IsNullOrWhiteSpace(userId))
-                throw new InvalidOperationException("No logged-in user id.");
+        private string GetUserId() => _userManager.GetUserId(User)!;
 
-            return await _context.UserProfiles.SingleAsync(p => p.IdentityUserId == userId);
+        private async Task<int> GetMyProfileIdAsync()
+        {
+            var userId = GetUserId();
+            var profile = await _profileService.GetMyProfileAsync(userId);
+            return profile.Id;
         }
 
+        private static List<SelectListItem> BuildPlaceOptions() => new()
+        {
+            new SelectListItem { Value = "Home", Text = "В къщи" },
+            new SelectListItem { Value = "Gym", Text = "Фитнес" },
+            new SelectListItem { Value = "Outdoor", Text = "Навън" },
+            new SelectListItem { Value = "Other", Text = "Друго" }
+        };
+
         // GET: TrainingDiaries
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var profile = await GetMyProfileAsync();
-
-            var diaries = await _context.TrainingDiaries
-                .AsNoTracking()
-                .Where(d => d.UserProfileId == profile.Id)
-                .OrderByDescending(d => d.Date)
-                .ToListAsync();
-
+            var userProfileId = await GetMyProfileIdAsync();
+            var diaries = await _diaryService.GetMyDiariesAsync(userProfileId);
             return View(diaries);
         }
 
         // GET: TrainingDiaries/Details/5
+        [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
-            var profile = await GetMyProfileAsync();
-
-            var diary = await _context.TrainingDiaries
-                .AsNoTracking()
-                .Include(d => d.TrainingEntries)
-                .FirstOrDefaultAsync(d => d.Id == id && d.UserProfileId == profile.Id);
+            var userProfileId = await GetMyProfileIdAsync();
+            var diary = await _diaryService.GetMyDiaryDetailsAsync(id.Value, userProfileId);
 
             if (diary == null) return NotFound();
 
@@ -60,105 +66,126 @@ namespace SportDiary.Controllers
         }
 
         // GET: TrainingDiaries/Create
+        [HttpGet]
         public IActionResult Create()
         {
-            // Няма dropdown за UserProfileId в реално приложение.
-            return View(new TrainingDiary { Date = DateTime.Today });
+            var vm = new TrainingDiaryFormVm
+            {
+                Date = DateTime.Today,
+                PlaceOptions = BuildPlaceOptions()
+            };
+
+            return View(vm);
         }
 
         // POST: TrainingDiaries/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Date,Notes")] TrainingDiary trainingDiary)
+        public async Task<IActionResult> Create(TrainingDiaryFormVm vm)
         {
-            var profile = await GetMyProfileAsync();
-
-            trainingDiary.Date = trainingDiary.Date.Date;
-            trainingDiary.UserProfileId = profile.Id;
+            var userProfileId = await GetMyProfileIdAsync();
 
             if (!ModelState.IsValid)
-                return View(trainingDiary);
-
-            // Guard: one diary per user per date.
-            var exists = await _context.TrainingDiaries
-                .AsNoTracking()
-                .AnyAsync(d => d.UserProfileId == profile.Id && d.Date == trainingDiary.Date);
-
-            if (exists)
             {
-                ModelState.AddModelError(nameof(TrainingDiary.Date), "Вече има дневник за тази дата.");
-                return View(trainingDiary);
+                vm.PlaceOptions = BuildPlaceOptions();
+                return View(vm);
             }
 
-            _context.Add(trainingDiary);
-            await _context.SaveChangesAsync();
+            var exists = await _diaryService.DiaryExistsForDateAsync(userProfileId, vm.Date);
+            if (exists)
+            {
+                ModelState.AddModelError(nameof(vm.Date), "Вече има дневник за тази дата.");
+                vm.PlaceOptions = BuildPlaceOptions();
+                return View(vm);
+            }
+
+            var entity = new TrainingDiary
+            {
+                UserProfileId = userProfileId,
+                Date = vm.Date,
+                DurationMinutes = vm.DurationMinutes,
+                Place = vm.Place,
+                WaterLiters = vm.WaterLiters,
+                Notes = vm.Notes
+            };
+
+            await _diaryService.CreateAsync(entity);
             return RedirectToAction(nameof(Index));
         }
 
         // GET: TrainingDiaries/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
-            var profile = await GetMyProfileAsync();
-
-            var diary = await _context.TrainingDiaries
-                .AsNoTracking()
-                .FirstOrDefaultAsync(d => d.Id == id && d.UserProfileId == profile.Id);
+            var userProfileId = await GetMyProfileIdAsync();
+            var diary = await _diaryService.GetMyDiaryForEditAsync(id.Value, userProfileId);
 
             if (diary == null) return NotFound();
 
-            return View(diary);
+            var vm = new TrainingDiaryFormVm
+            {
+                Id = diary.Id,
+                Date = diary.Date,
+                DurationMinutes = diary.DurationMinutes,
+                Place = diary.Place,
+                WaterLiters = diary.WaterLiters,
+                Notes = diary.Notes,
+                PlaceOptions = BuildPlaceOptions()
+            };
+
+            return View(vm);
         }
 
         // POST: TrainingDiaries/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Date,Notes")] TrainingDiary form)
+        public async Task<IActionResult> Edit(int id, TrainingDiaryFormVm vm)
         {
-            if (id != form.Id) return NotFound();
+            if (id != vm.Id) return NotFound();
 
-            var profile = await GetMyProfileAsync();
-
-            // Зареждаме истинския entity от DB (ownership + защита от overposting)
-            var diary = await _context.TrainingDiaries
-                .FirstOrDefaultAsync(d => d.Id == id && d.UserProfileId == profile.Id);
-
-            if (diary == null) return NotFound();
-
-            form.Date = form.Date.Date;
+            var userProfileId = await GetMyProfileIdAsync();
 
             if (!ModelState.IsValid)
-                return View(form);
+            {
+                vm.PlaceOptions = BuildPlaceOptions();
+                return View(vm);
+            }
 
-            // Guard: unique per date (exclude current)
-            var exists = await _context.TrainingDiaries
-                .AsNoTracking()
-                .AnyAsync(d => d.Id != id && d.UserProfileId == profile.Id && d.Date == form.Date);
+            var exists = await _diaryService.DiaryExistsForDateAsync(
+                userProfileId, vm.Date, excludeDiaryId: vm.Id);
 
             if (exists)
             {
-                ModelState.AddModelError(nameof(TrainingDiary.Date), "Вече има дневник за тази дата.");
-                return View(form);
+                ModelState.AddModelError(nameof(vm.Date), "Вече има дневник за тази дата.");
+                vm.PlaceOptions = BuildPlaceOptions();
+                return View(vm);
             }
 
-            diary.Date = form.Date;
-            diary.Notes = form.Notes;
+            var updated = await _diaryService.UpdateAsync(
+                vm.Id,
+                userProfileId,
+                vm.Date,
+                vm.DurationMinutes,
+                vm.Place,
+                vm.WaterLiters,
+                vm.Notes
+            );
 
-            await _context.SaveChangesAsync();
+            if (!updated) return NotFound();
+
             return RedirectToAction(nameof(Index));
         }
 
         // GET: TrainingDiaries/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
 
-            var profile = await GetMyProfileAsync();
-
-            var diary = await _context.TrainingDiaries
-                .AsNoTracking()
-                .FirstOrDefaultAsync(d => d.Id == id && d.UserProfileId == profile.Id);
+            var userProfileId = await GetMyProfileIdAsync();
+            var diary = await _diaryService.GetMyDiaryDetailsAsync(id.Value, userProfileId);
 
             if (diary == null) return NotFound();
 
@@ -170,15 +197,11 @@ namespace SportDiary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var profile = await GetMyProfileAsync();
+            var userProfileId = await GetMyProfileIdAsync();
 
-            var diary = await _context.TrainingDiaries
-                .FirstOrDefaultAsync(d => d.Id == id && d.UserProfileId == profile.Id);
+            var deleted = await _diaryService.DeleteAsync(id, userProfileId);
+            if (!deleted) return NotFound();
 
-            if (diary == null) return NotFound();
-
-            _context.TrainingDiaries.Remove(diary);
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
     }

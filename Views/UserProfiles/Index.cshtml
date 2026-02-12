@@ -1,0 +1,76 @@
+@model UserProfile
+
+@{
+    ViewData["Title"] = "Моят профил";
+    string dash(string? s) => string.IsNullOrWhiteSpace(s) ? "-" : s;
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Име</dt>
+            <dd class="col-sm-9">@dash(Model.Name)</dd>
+
+            <dt class="col-sm-3">Години</dt>
+            <dd class="col-sm-9">@Model.Age</dd>
+
+            <dt class="col-sm-3">Пол</dt>
+            <dd class="col-sm-9">
+                @(Model.Gender == "Male" ? "Мъж" :
+                                Model.Gender == "Female" ? "Жена" :
+                                dash(Model.Gender))
+            </dd>
+
+            <dt class="col-sm-3">Стартови килограми</dt>
+            <dd class="col-sm-9">@($"{Model.StartWeightKg:0.##} кг")</dd>
+
+            <dt class="col-sm-3">Височина</dt>
+            <dd class="col-sm-9">@($"{Model.HeightCm} см")</dd>
+
+            <dt class="col-sm-3">Активност</dt>
+            <dd class="col-sm-9">
+                @(Model.ActivityLevel == "Low" ? "Ниска активност" :
+                                Model.ActivityLevel == "Medium" ? "Средна активност" :
+                                Model.ActivityLevel == "High" ? "Висока активност" :
+                                dash(Model.ActivityLevel))
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<p class="mb-4">
+    <a class="btn btn-primary" asp-action="Edit">Редакция</a>
+</p>
+
+<h4>Моите дневници</h4>
+
+@if (Model.TrainingDiaries?.Any() == true)
+{
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Бележки</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model.TrainingDiaries.OrderByDescending(x => x.Date))
+            {
+                <tr>
+                    <td>@d.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@(string.IsNullOrWhiteSpace(d.Notes) ? "-" : d.Notes)</td>
+                    <td class="text-end">
+                        <a asp-controller="TrainingDiaries" asp-action="Details" asp-route-id="@d.Id">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>-</p>
+}

@@ -1,8 +1,205 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model SportDiary.ViewModels.Home.HomeDashboardVm
+
+@{
+    ViewData["Title"] = "SportDiary";
+
+    string dash(string? s) => string.IsNullOrWhiteSpace(s) ? "-" : s;
+
+    string placeText(string? p) => p switch
+    {
+        "Home" => "В къщи",
+        "Gym" => "Фитнес",
+        "Outdoor" => "Навън",
+        "Other" => "Друго",
+        _ => "-"
+    };
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="hero p-5 text-white shadow-sm">
+    <div class="container">
+        <h1 class="display-5 fw-bold mb-2">SportDiary</h1>
+
+        @if (Model.IsAuthenticated)
+        {
+            <p class="lead mb-4">
+                Здравей, <strong>@dash(Model.ProfileName)</strong> 👋
+                <span class="opacity-75">(@dash(Model.Email))</span>
+            </p>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-light btn-lg" asp-controller="UserProfiles" asp-action="Details">Профил</a>
+                <a class="btn btn-outline-light btn-lg" asp-controller="TrainingDiaries" asp-action="Create">+ Нов дневник</a>
+                <a class="btn btn-outline-light btn-lg" asp-controller="TrainingEntries" asp-action="Create">+ Нов запис</a>
+            </div>
+        }
+        else
+        {
+            <p class="lead mb-4">Влез, за да виждаш профила си, дневниците и статистиката.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-light btn-lg" asp-area="Identity" asp-page="/Account/Login">Вход</a>
+                <a class="btn btn-outline-light btn-lg" asp-area="Identity" asp-page="/Account/Register">Регистрация</a>
+            </div>
+        }
+    </div>
 </div>
+
+@if (Model.IsAuthenticated)
+{
+    <div class="container mt-4">
+
+        <!-- KPI -->
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm text-white bg-primary kpi-colored">
+                    <div class="card-body">
+                        <div class="opacity-75">Дневници</div>
+                        <div class="display-6 fw-bold">@Model.DiariesCount</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm text-white bg-success kpi-colored">
+                    <div class="card-body">
+                        <div class="opacity-75">Записи</div>
+                        <div class="display-6 fw-bold">@Model.EntriesCount</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm text-white bg-warning kpi-colored">
+                    <div class="card-body">
+                        <div class="opacity-75">Общо минути</div>
+                        <div class="display-6 fw-bold">@Model.TotalDurationMinutes</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm text-white bg-info kpi-colored">
+                    <div class="card-body">
+                        <div class="opacity-75">Общо вода (л)</div>
+                        <div class="display-6 fw-bold">@Model.TotalWaterLiters.ToString("0.#")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="row g-3 mt-2">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h5 class="mb-0">Последни дневници</h5>
+                            <a asp-controller="TrainingDiaries" asp-action="Index" class="btn btn-sm btn-outline-secondary">Всички</a>
+                        </div>
+
+                        @if (Model.RecentDiaries.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Дата</th>
+                                            <th>Място</th>
+                                            <th class="text-end">Минути</th>
+                                            <th class="text-end">Вода</th>
+                                            <th class="text-end"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var d in Model.RecentDiaries)
+                                        {
+                                            <tr>
+                                                <td>@d.Date.ToString("yyyy-MM-dd")</td>
+
+                                                <td>
+                                                    @switch (d.Place)
+                                                    {
+                                                        case "Home":
+                                                            <span class="badge bg-secondary">В къщи</span>
+                                                            break;
+                                                        case "Gym":
+                                                            <span class="badge bg-success">Фитнес</span>
+                                                            break;
+                                                        case "Outdoor":
+                                                            <span class="badge bg-primary">Навън</span>
+                                                            break;
+                                                        default:
+                                                            <span class="badge bg-dark">Друго</span>
+                                                            break;
+                                                    }
+                                                </td>
+
+                                                <td class="text-end">@d.DurationMinutes</td>
+                                                <td class="text-end">@($"{d.WaterLiters:0.#} л")</td>
+                                                <td class="text-end">
+                                                    <a asp-controller="TrainingDiaries" asp-action="Details" asp-route-id="@d.Id">Детайли</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-muted">Нямаш дневници още. Направи първия.</div>
+                            <a class="btn btn-primary mt-2" asp-controller="TrainingDiaries" asp-action="Create">+ Нов дневник</a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="mb-3">Бързи действия</h5>
+
+                        <div class="d-grid gap-2">
+                            <a class="btn btn-outline-primary" asp-controller="UserProfiles" asp-action="Details">Профил</a>
+                            <a class="btn btn-outline-success" asp-controller="TrainingDiaries" asp-action="Create">Добави дневник</a>
+                            <a class="btn btn-outline-warning" asp-controller="TrainingEntries" asp-action="Create">Добави запис</a>
+                            <a class="btn btn-outline-secondary" asp-controller="TrainingDiaries" asp-action="Index">Преглед дневници</a>
+                            <a class="btn btn-outline-secondary" asp-controller="TrainingEntries" asp-action="Index">Преглед записи</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+
+<style>
+    .hero {
+        background: linear-gradient(135deg, #0f172a, #1e3a8a);
+        border-radius: 20px;
+    }
+
+        .hero h1 {
+            letter-spacing: 1px;
+        }
+
+        .hero .btn {
+            border-radius: 12px;
+        }
+
+    .kpi-colored {
+        border-radius: 16px;
+    }
+
+    .card {
+        border-radius: 16px;
+    }
+
+    .table a {
+        text-decoration: none;
+    }
+
+        .table a:hover {
+            text-decoration: underline;
+        }
+</style>

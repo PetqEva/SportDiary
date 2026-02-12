@@ -1,4 +1,4 @@
-@model TrainingDiary
+@model SportDiary.ViewModels.TrainingDiaries.TrainingDiaryFormVm
 
 @{
     ViewData["Title"] = "Редакция на дневник";
@@ -13,6 +13,26 @@
         <label asp-for="Date" class="form-label">Дата</label>
         <input asp-for="Date" class="form-control" type="date" />
         <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DurationMinutes" class="form-label">Времетраене (минути)</label>
+        <input asp-for="DurationMinutes" class="form-control" type="number" min="0" max="600" />
+        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Place" class="form-label">Място</label>
+        <select asp-for="Place" asp-items="Model.PlaceOptions" class="form-select">
+            <option value="">-- избери --</option>
+        </select>
+        <span asp-validation-for="Place" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="WaterLiters" class="form-label">Вода (литри)</label>
+        <input asp-for="WaterLiters" class="form-control" type="number" step="0.1" min="0" max="20" />
+        <span asp-validation-for="WaterLiters" class="text-danger"></span>
     </div>
 
     <div class="mb-3">

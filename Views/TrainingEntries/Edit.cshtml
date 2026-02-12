@@ -1,4 +1,4 @@
-@model TrainingEntry
+@model SportDiary.ViewModels.TrainingEntries.TrainingEntryFormVm
 
 @{
     ViewData["Title"] = "Редакция на запис";
@@ -11,7 +11,10 @@
 
     <div class="mb-3">
         <label asp-for="TrainingDiaryId" class="form-label">Дневник</label>
-        <select asp-for="TrainingDiaryId" class="form-select" asp-items="ViewBag.TrainingDiaryId"></select>
+        <select asp-for="TrainingDiaryId" class="form-select" asp-items="Model.Diaries">
+            <option value="">-- избери дневник --</option>
+        </select>
+
         <span asp-validation-for="TrainingDiaryId" class="text-danger"></span>
     </div>
 
