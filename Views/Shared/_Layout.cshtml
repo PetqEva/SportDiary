@@ -35,69 +35,22 @@
 
                     <!-- Left menu -->
                     <ul class="navbar-nav me-auto">
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-controller="Home"
-                               asp-action="Index">
-                                Home
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-controller="Home"
-                               asp-action="Privacy">
-                                Privacy
-                            </a>
-                        </li>
-
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="UserProfiles"
-                                   asp-action="Details">
+                                <a class="nav-link text-dark" asp-controller="UserProfiles" asp-action="Index">
                                     Профил
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-success"
-                                   asp-controller="UserProfiles"
-                                   asp-action="Create">
-                                    Създай профил
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link text-primary"
-                                   asp-controller="UserProfiles"
-                                   asp-action="Edit">
-                                    Редакция
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link text-danger"
-                                   asp-controller="UserProfiles"
-                                   asp-action="Delete">
-                                    Изтриване
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="TrainingDiaries"
-                                   asp-action="Index">
+                                <a class="nav-link text-dark" asp-controller="TrainingDiaries" asp-action="Index">
                                     Дневници
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="TrainingEntries"
-                                   asp-action="Index">
+                                <a class="nav-link text-dark" asp-controller="TrainingEntries" asp-action="Index">
                                     Записи
                                 </a>
                             </li>
@@ -122,8 +75,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - SportDiary -
-            <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 - SportDiary
         </div>
     </footer>
 

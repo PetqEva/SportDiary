@@ -3,11 +3,36 @@
 @{
     ViewData["Title"] = "Моят профил";
     string dash(string? s) => string.IsNullOrWhiteSpace(s) ? "-" : s;
+
+    string genderText(string? g) => g switch
+    {
+        "Male" => "Мъж",
+        "Female" => "Жена",
+        _ => dash(g)
+    };
+
+    string activityText(string? a) => a switch
+    {
+        "Low" => "Ниска активност",
+        "Medium" => "Средна активност",
+        "High" => "Висока активност",
+        _ => dash(a)
+    };
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="mb-0">@ViewData["Title"]</h1>
 
-<div class="card mb-3">
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" asp-controller="TrainingDiaries" asp-action="Index">Дневници</a>
+        <a class="btn btn-outline-secondary" asp-controller="TrainingEntries" asp-action="Index">Записи</a>
+
+        <a class="btn btn-primary" asp-action="Edit">Редакция</a>
+        <a class="btn btn-outline-danger" asp-action="Delete">Изтриване</a>
+    </div>
+</div>
+
+<div class="card mb-4">
     <div class="card-body">
         <dl class="row mb-0">
             <dt class="col-sm-3">Име</dt>
@@ -17,60 +42,67 @@
             <dd class="col-sm-9">@Model.Age</dd>
 
             <dt class="col-sm-3">Пол</dt>
-            <dd class="col-sm-9">
-                @(Model.Gender == "Male" ? "Мъж" :
-                                Model.Gender == "Female" ? "Жена" :
-                                dash(Model.Gender))
-            </dd>
+            <dd class="col-sm-9">@genderText(Model.Gender)</dd>
 
             <dt class="col-sm-3">Стартови килограми</dt>
             <dd class="col-sm-9">@($"{Model.StartWeightKg:0.##} кг")</dd>
+
+            <dt class="col-sm-3">Текущи килограми</dt>
+            <dd class="col-sm-9">@($"{Model.CurrentWeightKg:0.##} кг")</dd>
 
             <dt class="col-sm-3">Височина</dt>
             <dd class="col-sm-9">@($"{Model.HeightCm} см")</dd>
 
             <dt class="col-sm-3">Активност</dt>
-            <dd class="col-sm-9">
-                @(Model.ActivityLevel == "Low" ? "Ниска активност" :
-                                Model.ActivityLevel == "Medium" ? "Средна активност" :
-                                Model.ActivityLevel == "High" ? "Висока активност" :
-                                dash(Model.ActivityLevel))
-            </dd>
+            <dd class="col-sm-9">@activityText(Model.ActivityLevel)</dd>
         </dl>
     </div>
 </div>
 
-<p class="mb-4">
-    <a class="btn btn-primary" asp-action="Edit">Редакция</a>
-</p>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+    <h4 class="mb-0">Моите дневници</h4>
 
-<h4>Моите дневници</h4>
+    <a class="btn btn-success btn-sm"
+       asp-controller="TrainingDiaries"
+       asp-action="Create">
+        + Нов дневник
+    </a>
+</div>
 
 @if (Model.TrainingDiaries?.Any() == true)
 {
-    <table class="table table-sm">
-        <thead>
-            <tr>
-                <th>Дата</th>
-                <th>Бележки</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var d in Model.TrainingDiaries.OrderByDescending(x => x.Date))
-            {
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead>
                 <tr>
-                    <td>@d.Date.ToString("yyyy-MM-dd")</td>
-                    <td>@(string.IsNullOrWhiteSpace(d.Notes) ? "-" : d.Notes)</td>
-                    <td class="text-end">
-                        <a asp-controller="TrainingDiaries" asp-action="Details" asp-route-id="@d.Id">Details</a>
-                    </td>
+                    <th>Дата</th>
+                    <th>Бележки</th>
+                    <th class="text-end">Действия</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var d in Model.TrainingDiaries.OrderByDescending(x => x.Date))
+                {
+                    <tr>
+                        <td class="text-nowrap">@d.Date.ToString("yyyy-MM-dd")</td>
+                        <td>@(string.IsNullOrWhiteSpace(d.Notes) ? "-" : d.Notes)</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-link p-0"
+                               asp-controller="TrainingDiaries"
+                               asp-action="Details"
+                               asp-route-id="@d.Id">
+                                Детайли
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 else
 {
-    <p>-</p>
+    <div class="alert alert-info mb-0">
+        Нямаш създадени дневници. Натисни <strong>„Нов дневник“</strong>, за да добавиш първия.
+    </div>
 }
