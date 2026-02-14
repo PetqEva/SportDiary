@@ -3,33 +3,40 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SportDiary.Data.Models;
 using SportDiary.Services.Interfaces;
+using SportDiary.ViewModels.Home;
 
 namespace SportDiary.Controllers
 {
     [AllowAnonymous]
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly IHomeDashboardService _dashboardService;
-        private readonly UserManager<ApplicationUser> _userManager;
 
         public HomeController(
             IHomeDashboardService dashboardService,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IUserProfileService profileService)
+            : base(userManager, profileService)
         {
             _dashboardService = dashboardService;
-            _userManager = userManager;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            // Ако не е логнат -> показваме публична начална
-            if (User.Identity?.IsAuthenticated != true)
-                return View();
+            if (!User.Identity!.IsAuthenticated)
+            {
+                return View(new HomeDashboardVm
+                {
+                    IsAuthenticated = false
+                });
+            }
 
-            // Ако е логнат -> dashboard
-            var userId = _userManager.GetUserId(User)!;
+            var userId = GetUserId();
             var vm = await _dashboardService.BuildAsync(userId);
+
+            vm.IsAuthenticated = true;
+            vm.Email = User.Identity.Name;
 
             return View(vm);
         }

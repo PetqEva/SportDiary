@@ -86,9 +86,12 @@ namespace SportDiary.Controllers
 
             if (!ModelState.IsValid)
             {
+                ModelState.AddModelError(string.Empty, "Моля, коригирайте грешките във формата.");
+
                 vm.ActivityOptions = BuildActivityOptions();
                 return View(vm);
             }
+
 
             var userId = GetUserId();
 
@@ -144,6 +147,8 @@ namespace SportDiary.Controllers
 
             if (!ModelState.IsValid)
             {
+                ModelState.AddModelError(string.Empty, "Моля, коригирайте грешките във формата.");
+
                 vm.ActivityOptions = BuildActivityOptions();
                 return View(vm);
             }

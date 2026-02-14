@@ -95,9 +95,12 @@ namespace SportDiary.Controllers
 
             if (!ModelState.IsValid)
             {
-                vm.Diaries = await BuildMyDiariesSelectAsync(pid, vm.TrainingDiaryId);
+                ModelState.AddModelError(string.Empty, "Моля, коригирайте грешките във формата.");
+
+                vm.Diaries = await BuildMyDiariesSelectAsync(userProfileId.Value, vm.TrainingDiaryId);
                 return View(vm);
             }
+
 
             var entity = new TrainingEntry
             {
@@ -166,9 +169,12 @@ namespace SportDiary.Controllers
 
             if (!ModelState.IsValid)
             {
-                vm.Diaries = await BuildMyDiariesSelectAsync(pid, vm.TrainingDiaryId);
+                ModelState.AddModelError(string.Empty, "Моля, коригирайте грешките във формата.");
+
+                vm.Diaries = await BuildMyDiariesSelectAsync(userProfileId.Value, vm.TrainingDiaryId);
                 return View(vm);
             }
+
 
             var entity = new TrainingEntry
             {

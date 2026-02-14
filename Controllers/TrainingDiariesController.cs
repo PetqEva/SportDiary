@@ -87,9 +87,12 @@ namespace SportDiary.Controllers
 
             if (!ModelState.IsValid)
             {
+                ModelState.AddModelError(string.Empty, "Моля, коригирайте грешките във формата.");
+
                 vm.PlaceOptions = BuildPlaceOptions();
                 return View(vm);
             }
+
 
             var exists = await _diaryService.DiaryExistsForDateAsync(pid, vm.Date);
             if (exists)
@@ -154,6 +157,7 @@ namespace SportDiary.Controllers
             var pid = userProfileId.Value;
 
             var allowed = BuildPlaceOptions().Select(x => x.Value);
+
             if (!allowed.Contains(vm.Place))
             {
                 ModelState.AddModelError(nameof(vm.Place), "Невалидно място.");
@@ -161,9 +165,12 @@ namespace SportDiary.Controllers
 
             if (!ModelState.IsValid)
             {
+                ModelState.AddModelError(string.Empty, "Моля, коригирайте грешките във формата.");
+
                 vm.PlaceOptions = BuildPlaceOptions();
                 return View(vm);
             }
+
 
             var exists = await _diaryService.DiaryExistsForDateAsync(pid, vm.Date, excludeDiaryId: vm.Id);
             if (exists)
