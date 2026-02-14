@@ -67,18 +67,25 @@ namespace SportDiary.Controllers
         }
 
         // GET: TrainingEntries/Create
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int? diaryId, string? returnUrl)
         {
             var userProfileId = await GetMyProfileIdAsync();
-            if (userProfileId == null) return RedirectToAction("Create", "UserProfiles");
+            if (userProfileId == null)
+                return RedirectToAction("Create", "UserProfiles");
+
+            var pid = userProfileId.Value;
 
             var vm = new TrainingEntryFormVm
             {
-                Diaries = await BuildMyDiariesSelectAsync(userProfileId.Value)
+                TrainingDiaryId = diaryId ?? 0,
+                Diaries = await BuildMyDiariesSelectAsync(pid, diaryId),
+                ReturnUrl = returnUrl
             };
 
             return View(vm);
         }
+
+
 
         // POST: TrainingEntries/Create
         [HttpPost]
@@ -122,7 +129,11 @@ namespace SportDiary.Controllers
                 return View(vm);
             }
 
+            if (!string.IsNullOrWhiteSpace(vm.ReturnUrl))
+                return Redirect(vm.ReturnUrl);
+
             return RedirectToAction(nameof(Index));
+
         }
 
         // GET: TrainingEntries/Edit/5

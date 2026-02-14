@@ -7,6 +7,8 @@
 <h1>@ViewData["Title"]</h1>
 
 <form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="ReturnUrl" />
+
     <input type="hidden" asp-for="Id" />
 
     <div class="mb-3">
