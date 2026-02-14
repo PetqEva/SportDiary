@@ -1,22 +1,30 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SportDiary.Data.Models;
+using SportDiary.Services.Interfaces;
 
-namespace SportDiary.Controllers
+namespace SportDiary.Controllers;
+
+[Authorize]
+public abstract class BaseController : Controller
 {
-    public abstract class BaseController : Controller
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IUserProfileService _profileService;
+
+    protected BaseController(
+        UserManager<ApplicationUser> userManager,
+        IUserProfileService profileService)
     {
-        protected readonly UserManager<ApplicationUser> userManager;
+        _userManager = userManager;
+        _profileService = profileService;
+    }
 
-        protected BaseController(UserManager<ApplicationUser> userManager)
-        {
-            this.userManager = userManager;
-        }
+    protected string GetUserId() => _userManager.GetUserId(User)!;
 
-        protected string GetUserId()
-            => userManager.GetUserId(User)!;
-
-        protected bool IsAuthenticated()
-            => User?.Identity?.IsAuthenticated ?? false;
+    protected async Task<int?> GetMyProfileIdAsync()
+    {
+        var profile = await _profileService.GetMyProfileAsync(GetUserId());
+        return profile?.Id;
     }
 }

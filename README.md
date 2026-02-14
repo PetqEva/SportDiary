@@ -27,7 +27,7 @@ The solution follows a layered structure:
 - **SportDiary.Data** – DbContext and Entity models
 - **SportDiary.Services** – Business logic (Service layer)
 - **SportDiary.ViewModels** – ViewModels used in forms and views
-- **SportDiary.Common** – Validation constants and shared utilities
+- **SportDiary.GCommon** – Validation constants and shared utilities
 
 Controllers do not access the database directly.  
 All business logic is handled through services using Dependency Injection.
@@ -55,15 +55,45 @@ The application uses ASP.NET Core Identity.
 - Each user can access only their own training data
 - Protected pages require authentication
 
+### Demo user (seed)
+
+On local run, the app seeds a demo account + sample diary/entries (see `Infrastructure/DbSeeder.cs`).
+
+- Email: `demo@sportdiary.local`
+- Password: `demo123`
+
+If you don't want seed data for submission, comment out the seeding line in `Program.cs`.
+
 ---
 
 ## 🗄 Database Setup
 
-1. Update the connection string in:
+1. Configure SQL Server connection string in:
 
+   - `SportDiary/appsettings.json` (or `SportDiary/appsettings.Development.json`)
+   - Key: `ConnectionStrings:DefaultConnection`
 
-2. Open Package Manager Console and run:
+   Example:
 
+   ```json
+   {
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=SportDiaryDb;Trusted_Connection=True;MultipleActiveResultSets=true"
+     }
+   }
+   ```
+
+2. Apply migrations:
+
+   **Option A (Package Manager Console):**
+   ```powershell
+   Update-Database -Project SportDiary.Data -StartupProject SportDiary
+   ```
+
+   **Option B (CLI):**
+   ```bash
+   dotnet ef database update --project SportDiary.Data --startup-project SportDiary
+   ```
 
 3. Run the application.
 
@@ -71,11 +101,11 @@ The application uses ASP.NET Core Identity.
 
 ## ▶ How to Run the Project
 
-1. Clone the repository
-2. Open `SportDiary.sln`
-3. Restore NuGet packages
-4. Apply migrations
-5. Run the project
+1. Clone the repository.
+2. Open `SportDiary.sln`.
+3. Restore NuGet packages.
+4. Apply migrations (see **Database Setup**).
+5. Run `SportDiary` (the Web project).
 
 The application will start using the default configuration.
 

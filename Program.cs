@@ -5,6 +5,8 @@ using SportDiary.Data.Models;
 using SportDiary.Infrastructure;
 using SportDiary.Services.Interfaces;
 using SportDiary.Services.Implementations;
+using Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddControllersWithViews();
+
+// по-добри dev грешки при DB проблеми
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // ✅ Razor Pages + изключения за Identity (иначе FallbackPolicy прави loop към Login)
 builder.Services.AddRazorPages(options =>
@@ -60,6 +65,14 @@ builder.Services.AddAuthorization(options =>
 });
 
 var app = builder.Build();
+
+// Demo seed (локално). Ако не го искаш за предаване, просто го коментираш.
+await DbSeeder.SeedAsync(app.Services);
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
 
 if (!app.Environment.IsDevelopment())
 {

@@ -1,10 +1,46 @@
-@model TrainingDiary
+@using SportDiary.ViewModels.TrainingDiaries
+@model TrainingDiaryDetailsViewModel
 
 @{
     ViewData["Title"] = "Детайли";
 }
 
 <h1>@ViewData["Title"]</h1>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="text-muted">Тренировки</div>
+                <div class="fs-4 fw-semibold">@Model.TotalEntries</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="text-muted">Минути</div>
+                <div class="fs-4 fw-semibold">@Model.TotalDurationMinutes</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="text-muted">Калории</div>
+                <div class="fs-4 fw-semibold">@Model.TotalCalories</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="text-muted">Разстояние</div>
+                <div class="fs-4 fw-semibold">@string.Format("{0:0.##} km", Model.TotalDistanceKm)</div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <dl class="row">
     <dt class="col-sm-2">Дата</dt>
@@ -15,7 +51,7 @@
 </dl>
 
 <h4>Записи</h4>
-@if (Model.TrainingEntries?.Any() == true)
+@if (Model.Entries?.Any() == true)
 {
     <table class="table table-sm">
         <thead>
@@ -27,7 +63,7 @@
             </tr>
         </thead>
         <tbody>
-        @foreach (var e in Model.TrainingEntries)
+        @foreach (var e in Model.Entries)
         {
             <tr>
                 <td>@e.SportName</td>

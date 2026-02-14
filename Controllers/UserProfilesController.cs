@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SportDiary.Data.Models;
 using SportDiary.Services.Interfaces;
@@ -9,20 +10,20 @@ using SportDiary.ViewModels.UserProfiles;
 namespace SportDiary.Controllers
 {
     [Authorize]
-    public class UserProfilesController : Controller
+    public class UserProfilesController : BaseController
     {
         private readonly IUserProfileService _profileService;
-        private readonly UserManager<ApplicationUser> _userManager;
+
+        private static readonly string[] AllowedActivityLevels = { "Low", "Medium", "High" };
 
         public UserProfilesController(
-            IUserProfileService profileService,
-            UserManager<ApplicationUser> userManager)
+    IUserProfileService profileService,
+    UserManager<ApplicationUser> userManager)
+    : base(userManager, profileService)
         {
             _profileService = profileService;
-            _userManager = userManager;
         }
 
-        private string GetUserId() => _userManager.GetUserId(User)!;
 
         private static List<SelectListItem> BuildActivityOptions() => new()
         {
@@ -30,6 +31,14 @@ namespace SportDiary.Controllers
             new SelectListItem { Value = "Medium", Text = "Средна активност" },
             new SelectListItem { Value = "High", Text = "Висока активност" }
         };
+
+        private static void ValidateActivityLevel(EditUserProfileVm vm, ModelStateDictionary modelState)
+        {
+            if (string.IsNullOrWhiteSpace(vm.ActivityLevel) || !AllowedActivityLevels.Contains(vm.ActivityLevel))
+            {
+                modelState.AddModelError(nameof(vm.ActivityLevel), "Невалидно ниво на активност.");
+            }
+        }
 
         [HttpGet]
         public IActionResult Me() => RedirectToAction(nameof(Details));
@@ -39,6 +48,10 @@ namespace SportDiary.Controllers
         {
             var userId = GetUserId();
             var profile = await _profileService.GetMyProfileAsync(userId);
+
+            if (profile == null)
+                return RedirectToAction(nameof(Create));
+
             return View(profile);
         }
 
@@ -47,6 +60,10 @@ namespace SportDiary.Controllers
         {
             var userId = GetUserId();
             var profile = await _profileService.GetMyProfileWithDiariesAsync(userId);
+
+            if (profile == null)
+                return RedirectToAction(nameof(Create));
+
             return View(profile);
         }
 
@@ -57,6 +74,7 @@ namespace SportDiary.Controllers
             {
                 ActivityOptions = BuildActivityOptions()
             };
+
             return View(vm);
         }
 
@@ -64,6 +82,8 @@ namespace SportDiary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EditUserProfileVm vm)
         {
+            ValidateActivityLevel(vm, ModelState);
+
             if (!ModelState.IsValid)
             {
                 vm.ActivityOptions = BuildActivityOptions();
@@ -72,7 +92,7 @@ namespace SportDiary.Controllers
 
             var userId = GetUserId();
 
-            await _profileService.CreateMyProfileAsync(
+            var created = await _profileService.CreateMyProfileAsync(
                 userId,
                 vm.Name,
                 vm.Age,
@@ -82,6 +102,13 @@ namespace SportDiary.Controllers
                 vm.HeightCm,
                 vm.ActivityLevel);
 
+            if (!created)
+            {
+                ModelState.AddModelError(string.Empty, "Профилът вече съществува. Използвай Редакция.");
+                vm.ActivityOptions = BuildActivityOptions();
+                return View(vm);
+            }
+
             return RedirectToAction(nameof(Details));
         }
 
@@ -90,6 +117,9 @@ namespace SportDiary.Controllers
         {
             var userId = GetUserId();
             var profile = await _profileService.GetMyProfileAsync(userId);
+
+            if (profile == null)
+                return RedirectToAction(nameof(Create));
 
             var vm = new EditUserProfileVm
             {
@@ -110,6 +140,8 @@ namespace SportDiary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EditUserProfileVm vm)
         {
+            ValidateActivityLevel(vm, ModelState);
+
             if (!ModelState.IsValid)
             {
                 vm.ActivityOptions = BuildActivityOptions();
@@ -118,7 +150,7 @@ namespace SportDiary.Controllers
 
             var userId = GetUserId();
 
-            await _profileService.UpdateMyProfileAsync(
+            var updated = await _profileService.UpdateMyProfileAsync(
                 userId,
                 vm.Name,
                 vm.Age,
@@ -128,6 +160,9 @@ namespace SportDiary.Controllers
                 vm.HeightCm,
                 vm.ActivityLevel);
 
+            if (!updated)
+                return RedirectToAction(nameof(Create));
+
             return RedirectToAction(nameof(Details));
         }
 
@@ -136,15 +171,22 @@ namespace SportDiary.Controllers
         {
             var userId = GetUserId();
             var profile = await _profileService.GetMyProfileAsync(userId);
+
+            if (profile == null)
+                return RedirectToAction(nameof(Create));
+
             return View(profile);
         }
 
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed()
         {
             var userId = GetUserId();
-            await _profileService.DeleteMyProfileAsync(userId);
+
+            var deleted = await _profileService.DeleteMyProfileAsync(userId);
+            if (!deleted) return NotFound();
+
             return RedirectToAction("Index", "Home");
         }
     }

@@ -9,29 +9,17 @@ using SportDiary.ViewModels.TrainingDiaries;
 namespace SportDiary.Controllers
 {
     [Authorize]
-    public class TrainingDiariesController : Controller
+    public class TrainingDiariesController : BaseController
     {
         private readonly ITrainingDiaryService _diaryService;
-        private readonly IUserProfileService _profileService;
-        private readonly UserManager<ApplicationUser> _userManager;
 
         public TrainingDiariesController(
             ITrainingDiaryService diaryService,
             IUserProfileService profileService,
             UserManager<ApplicationUser> userManager)
+            : base(userManager, profileService)
         {
             _diaryService = diaryService;
-            _profileService = profileService;
-            _userManager = userManager;
-        }
-
-        private string GetUserId() => _userManager.GetUserId(User)!;
-
-        private async Task<int> GetMyProfileIdAsync()
-        {
-            var userId = GetUserId();
-            var profile = await _profileService.GetMyProfileAsync(userId);
-            return profile.Id;
         }
 
         private static List<SelectListItem> BuildPlaceOptions() => new()
@@ -47,7 +35,9 @@ namespace SportDiary.Controllers
         public async Task<IActionResult> Index()
         {
             var userProfileId = await GetMyProfileIdAsync();
-            var diaries = await _diaryService.GetMyDiariesAsync(userProfileId);
+            if (userProfileId == null) return RedirectToAction("Create", "UserProfiles");
+
+            var diaries = await _diaryService.GetMyDiariesAsync(userProfileId.Value);
             return View(diaries);
         }
 
@@ -58,8 +48,9 @@ namespace SportDiary.Controllers
             if (id == null) return NotFound();
 
             var userProfileId = await GetMyProfileIdAsync();
-            var diary = await _diaryService.GetMyDiaryDetailsAsync(id.Value, userProfileId);
+            if (userProfileId == null) return RedirectToAction("Create", "UserProfiles");
 
+            var diary = await _diaryService.GetMyDiaryDetailsVmAsync(id.Value, userProfileId.Value);
             if (diary == null) return NotFound();
 
             return View(diary);
@@ -84,6 +75,15 @@ namespace SportDiary.Controllers
         public async Task<IActionResult> Create(TrainingDiaryFormVm vm)
         {
             var userProfileId = await GetMyProfileIdAsync();
+            if (userProfileId == null) return RedirectToAction("Create", "UserProfiles");
+
+            var pid = userProfileId.Value;
+
+            var allowed = new[] { "Home", "Gym", "Outdoor", "Other" };
+            if (!allowed.Contains(vm.Place))
+            {
+                ModelState.AddModelError(nameof(vm.Place), "Невалидно място.");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -91,7 +91,7 @@ namespace SportDiary.Controllers
                 return View(vm);
             }
 
-            var exists = await _diaryService.DiaryExistsForDateAsync(userProfileId, vm.Date);
+            var exists = await _diaryService.DiaryExistsForDateAsync(pid, vm.Date);
             if (exists)
             {
                 ModelState.AddModelError(nameof(vm.Date), "Вече има дневник за тази дата.");
@@ -101,7 +101,7 @@ namespace SportDiary.Controllers
 
             var entity = new TrainingDiary
             {
-                UserProfileId = userProfileId,
+                UserProfileId = pid,
                 Date = vm.Date,
                 DurationMinutes = vm.DurationMinutes,
                 Place = vm.Place,
@@ -109,7 +109,7 @@ namespace SportDiary.Controllers
                 Notes = vm.Notes
             };
 
-            await _diaryService.CreateAsync(entity);
+            await _diaryService.CreateAsync(entity, pid);
             return RedirectToAction(nameof(Index));
         }
 
@@ -120,8 +120,11 @@ namespace SportDiary.Controllers
             if (id == null) return NotFound();
 
             var userProfileId = await GetMyProfileIdAsync();
-            var diary = await _diaryService.GetMyDiaryForEditAsync(id.Value, userProfileId);
+            if (userProfileId == null) return RedirectToAction("Create", "UserProfiles");
 
+            var pid = userProfileId.Value;
+
+            var diary = await _diaryService.GetMyDiaryForEditAsync(id.Value, pid);
             if (diary == null) return NotFound();
 
             var vm = new TrainingDiaryFormVm
@@ -146,6 +149,15 @@ namespace SportDiary.Controllers
             if (id != vm.Id) return NotFound();
 
             var userProfileId = await GetMyProfileIdAsync();
+            if (userProfileId == null) return RedirectToAction("Create", "UserProfiles");
+
+            var pid = userProfileId.Value;
+
+            var allowed = BuildPlaceOptions().Select(x => x.Value);
+            if (!allowed.Contains(vm.Place))
+            {
+                ModelState.AddModelError(nameof(vm.Place), "Невалидно място.");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -153,9 +165,7 @@ namespace SportDiary.Controllers
                 return View(vm);
             }
 
-            var exists = await _diaryService.DiaryExistsForDateAsync(
-                userProfileId, vm.Date, excludeDiaryId: vm.Id);
-
+            var exists = await _diaryService.DiaryExistsForDateAsync(pid, vm.Date, excludeDiaryId: vm.Id);
             if (exists)
             {
                 ModelState.AddModelError(nameof(vm.Date), "Вече има дневник за тази дата.");
@@ -165,7 +175,7 @@ namespace SportDiary.Controllers
 
             var updated = await _diaryService.UpdateAsync(
                 vm.Id,
-                userProfileId,
+                pid,
                 vm.Date,
                 vm.DurationMinutes,
                 vm.Place,
@@ -185,8 +195,9 @@ namespace SportDiary.Controllers
             if (id == null) return NotFound();
 
             var userProfileId = await GetMyProfileIdAsync();
-            var diary = await _diaryService.GetMyDiaryDetailsAsync(id.Value, userProfileId);
+            if (userProfileId == null) return RedirectToAction("Create", "UserProfiles");
 
+            var diary = await _diaryService.GetMyDiaryDetailsVmAsync(id.Value, userProfileId.Value);
             if (diary == null) return NotFound();
 
             return View(diary);
@@ -198,8 +209,9 @@ namespace SportDiary.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var userProfileId = await GetMyProfileIdAsync();
+            if (userProfileId == null) return RedirectToAction("Create", "UserProfiles");
 
-            var deleted = await _diaryService.DeleteAsync(id, userProfileId);
+            var deleted = await _diaryService.DeleteAsync(id, userProfileId.Value);
             if (!deleted) return NotFound();
 
             return RedirectToAction(nameof(Index));
