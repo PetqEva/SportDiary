@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using SportDiary.Data;
 using SportDiary.Data.Models;
 using SportDiary.Infrastructure;
-using SportDiary.Services.Interfaces;
 using SportDiary.Services.Implementations;
-using Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore;
+using SportDiary.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
 
 
 
@@ -47,27 +47,31 @@ builder.Services
     {
         options.SignIn.RequireConfirmedAccount = false;
 
-        // Практични пароли за старт (после ги затягаш)
+       
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequireUppercase = false;
         options.Password.RequireLowercase = false;
         options.Password.RequireDigit = true;
         options.Password.RequiredLength = 6;
     })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
 // ✅ Всичко да изисква login по подразбиране
 builder.Services.AddAuthorization(options =>
 {
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+    options.DefaultPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
 });
+
 
 var app = builder.Build();
 
 // Demo seed (локално). Ако не го искаш за предаване, просто го коментираш.
 await DbSeeder.SeedAsync(app.Services);
+await IdentitySeeder.SeedRolesAndAdminAsync(app.Services);
+
 
 if (app.Environment.IsDevelopment())
 {
@@ -89,10 +93,12 @@ app.UseAuthentication();
 app.UseMiddleware<ProfileBootstrapMiddleware>();
 app.UseAuthorization();
 
+app.MapRazorPages();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapRazorPages();
+
 
 app.Run();
