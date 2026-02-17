@@ -36,6 +36,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="TrainingEntries" asp-action="Index">Записи</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Calculators" asp-action="Tdee">Калкулатор</a>
+                            </li>
                         }
                     </ul>
 
@@ -43,14 +46,17 @@
                         <partial name="_LoginPartial" />
                     </ul>
                 </div>
-
-
-                </div>
+            </div>
         </nav>
     </header>
 
-
     <div class="container">
+        @* ✅ Успешно съобщение (например след "Запази като дневна цел") *@
+        @if (TempData["Success"] is string msg)
+        {
+            <div class="alert alert-success mt-3 mb-3">@msg</div>
+        }
+
         <main role="main" class="pb-3">
             @RenderBody()
         </main>

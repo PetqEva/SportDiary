@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using SportDiary.Data;
 using SportDiary.Data.Models;
 using SportDiary.Infrastructure;
 using SportDiary.Services.Implementations;
 using SportDiary.Services.Interfaces;
-using Microsoft.AspNetCore.Identity;
+using System.Globalization;
 
 
 
@@ -34,8 +36,6 @@ builder.Services.AddScoped<ITrainingEntryService, TrainingEntryService>();
 builder.Services.AddScoped<ITrainingDiaryService, TrainingDiaryService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IHomeDashboardService, HomeDashboardService>();
-
-
 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -83,6 +83,20 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+app.UseHttpsRedirection();
+var supportedCultures = new[]
+{
+    new CultureInfo("bg-BG"),
+    new CultureInfo("en-US")
+};
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("bg-BG"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+});
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
