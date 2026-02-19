@@ -5,15 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SportDiary.Data;
 using SportDiary.Data.Models;
+using SportDiary.GCommon;
 using SportDiary.ViewModels.Admin;
 
-namespace SportDiary.Controllers
+namespace SportDiary.Areas.Admin.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Area("Admin")]
+    [Authorize(Roles = Roles.Administrator)]
     public class AdminController : Controller
     {
-        private const string AdminRole = "Admin";
-
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly AppDbContext _context;
 
@@ -50,13 +50,12 @@ namespace SportDiary.Controllers
                     Id = user.Id,
                     Email = user.Email,
                     UserName = user.UserName,
-                    IsAdmin = await _userManager.IsInRoleAsync(user, "Admin")
+                    IsAdmin = await _userManager.IsInRoleAsync(user, Roles.Administrator)
                 });
             }
 
             return View(model);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -69,9 +68,9 @@ namespace SportDiary.Controllers
             if (user == null)
                 return NotFound();
 
-            if (!await _userManager.IsInRoleAsync(user, AdminRole))
+            if (!await _userManager.IsInRoleAsync(user, Roles.Administrator))
             {
-                var result = await _userManager.AddToRoleAsync(user, AdminRole);
+                var result = await _userManager.AddToRoleAsync(user, Roles.Administrator);
                 if (!result.Succeeded)
                 {
                     TempData["AdminError"] = string.Join("; ", result.Errors.Select(e => e.Description));
@@ -90,10 +89,10 @@ namespace SportDiary.Controllers
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // ✅ не позволявай да си махнеш Admin на себе си
+            // не позволявай да си махнеш Administrator на себе си
             if (userId == currentUserId)
             {
-                TempData["AdminError"] = "Не можеш да махнеш Admin роля на собствения си акаунт.";
+                TempData["AdminError"] = "Не можеш да махнеш Administrator роля на собствения си акаунт.";
                 return RedirectToAction(nameof(Users));
             }
 
@@ -101,9 +100,9 @@ namespace SportDiary.Controllers
             if (user == null)
                 return NotFound();
 
-            if (await _userManager.IsInRoleAsync(user, AdminRole))
+            if (await _userManager.IsInRoleAsync(user, Roles.Administrator))
             {
-                var result = await _userManager.RemoveFromRoleAsync(user, AdminRole);
+                var result = await _userManager.RemoveFromRoleAsync(user, Roles.Administrator);
                 if (!result.Succeeded)
                 {
                     TempData["AdminError"] = string.Join("; ", result.Errors.Select(e => e.Description));

@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SportDiary.Data.Models;
+using SportDiary.Models;
 using SportDiary.Services.Interfaces;
 using SportDiary.ViewModels.Home;
 
@@ -42,5 +44,24 @@ namespace SportDiary.Controllers
         }
 
         public IActionResult Privacy() => View();
+
+        // ✅ 500 page (Production exception handler)
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
+        }
+
+        // ✅ 404/403/... (StatusCodePagesWithReExecute)
+        [HttpGet]
+        public IActionResult StatusCodeError(int code)
+        {
+            Response.StatusCode = code;
+            return View("StatusCode", model: code);
+        }
     }
 }
+

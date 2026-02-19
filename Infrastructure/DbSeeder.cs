@@ -15,32 +15,46 @@ public static class DbSeeder
 
         await context.Database.MigrateAsync();
 
-        if (context.UserProfiles.Any())
-            return;
-
-        var user = new ApplicationUser
+        // ---------- USER + PROFILE SEED ----------
+        if (!context.UserProfiles.Any())
         {
-            UserName = "demo@sportdiary.local",
-            Email = "demo@sportdiary.local"
-        };
+            var user = new ApplicationUser
+            {
+                UserName = "demo@sportdiary.local",
+                Email = "demo@sportdiary.local"
+            };
 
-        var created = await userManager.CreateAsync(user, "demo123");
-        if (!created.Succeeded) return;
+            var created = await userManager.CreateAsync(user, "demo123");
+            if (created.Succeeded)
+            {
+                var profile = new UserProfile
+                {
+                    IdentityUserId = user.Id,
+                    Name = "Demo User",
+                    Age = 30,
+                    Gender = "Other",
+                    StartWeightKg = 80,
+                    CurrentWeightKg = 80,
+                    HeightCm = 170,
+                    ActivityLevel = "Medium"
+                };
 
-        var profile = new UserProfile
+                context.UserProfiles.Add(profile);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        // ---------- EXERCISE SEED ----------
+        if (!context.Exercises.Any())
         {
-            IdentityUserId = user.Id,
-            Name = "Demo User",
-            Age = 30,
-            Gender = "Other",
-            StartWeightKg = 80,
-            CurrentWeightKg = 80,
-            HeightCm = 170,
-            ActivityLevel = "Medium"
-        };
+            context.Exercises.AddRange(
+                new Exercise { Name = "Bench Press", MuscleGroup = "Chest", Type = Data.Models.Enums.ExerciseType.Strength, Difficulty = Data.Models.Enums.DifficultyLevel.Medium },
+                new Exercise { Name = "Squat", MuscleGroup = "Legs", Type = Data.Models.Enums.ExerciseType.Strength, Difficulty = Data.Models.Enums.DifficultyLevel.Hard },
+                new Exercise { Name = "Pull Up", MuscleGroup = "Back", Type = Data.Models.Enums.ExerciseType.Strength, Difficulty = Data.Models.Enums.DifficultyLevel.Hard }
+            );
 
-        context.UserProfiles.Add(profile);
-        await context.SaveChangesAsync();
+            await context.SaveChangesAsync();
+        }
     }
 }
 

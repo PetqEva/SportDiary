@@ -9,8 +9,6 @@ using SportDiary.Services.Implementations;
 using SportDiary.Services.Interfaces;
 using System.Globalization;
 
-
-
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
@@ -18,10 +16,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddControllersWithViews();
 
-// по-добри dev грешки при DB проблеми
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// ✅ Razor Pages + изключения за Identity (иначе FallbackPolicy прави loop към Login)
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account/Login");
@@ -32,22 +28,22 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account/ConfirmEmail");
 });
 
+// Services
 builder.Services.AddScoped<ITrainingEntryService, TrainingEntryService>();
 builder.Services.AddScoped<ITrainingDiaryService, TrainingDiaryService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IHomeDashboardService, HomeDashboardService>();
 
-
+// DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// ✅ Identity
+// Identity + Roles
 builder.Services
     .AddDefaultIdentity<ApplicationUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
 
-       
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequireUppercase = false;
         options.Password.RequireLowercase = false;
@@ -57,7 +53,7 @@ builder.Services
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
-// ✅ Всичко да изисква login по подразбиране
+// Всички страници изискват login по подразбиране
 builder.Services.AddAuthorization(options =>
 {
     options.DefaultPolicy = new AuthorizationPolicyBuilder()
@@ -65,25 +61,28 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-
 var app = builder.Build();
 
-// Demo seed (локално). Ако не го искаш за предаване, просто го коментираш.
+// Seed
 await DbSeeder.SeedAsync(app.Services);
 await IdentitySeeder.SeedRolesAndAdminAsync(app.Services);
 
-
+// Error handling
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
-
-if (!app.Environment.IsDevelopment())
+else
 {
     app.UseExceptionHandler("/Home/Error");
+    app.UseStatusCodePagesWithReExecute("/Home/StatusCodeError", "?code={0}");
     app.UseHsts();
 }
+
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+// Localization
 var supportedCultures = new[]
 {
     new CultureInfo("bg-BG"),
@@ -97,10 +96,6 @@ app.UseRequestLocalization(new RequestLocalizationOptions
     SupportedUICultures = supportedCultures
 });
 
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
 app.UseRouting();
 
 app.UseAuthentication();
@@ -109,10 +104,14 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
+// ✅ Area routing (ТРЯБВА да е преди default)
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Admin}/{action=Index}/{id?}");
+
+// Default route
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-
 
 app.Run();
